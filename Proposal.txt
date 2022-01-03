@@ -1,0 +1,118 @@
+Domain Background
+
+The capstone project represents an experiment and the project itself is really to decide what next.
+How do we take this experimental data and discover which are the groups in there and what are the 
+offers that excite people? So, the Capstone Project is about discovering what is the best offer in there,
+not just for the population as a whole but at an individual personalized level. This is simulated data 
+for the sake of testing the algorithms.
+
+Problem Statement
+
+The task is to combine transaction, demographic and offer data to build a model that predicts 
+whether or not someone will respond to an offer. The data will also be available in the github 
+repo and is clearly stated below in the Data Sets section of the proposal.
+
+Als0, every offer has a validity period before the offer expires. As an example, a BOGO offer might 
+be valid for only 5 days. You'll see in the data set that informational offers have a validity 
+period even though these ads are merely providing information about a product; for example, if an 
+informational offer has 7 days of validity, you can assume the customer is feeling the influence of 
+the offer for 7 days after receiving the advertisement.
+
+The transactional data shows user purchases made on the app including the timestamp 
+of purchase and the amount of money spent on a purchase. This transactional data also has a record 
+for each offer that a user receives as well as a record for when a user actually views the offer. 
+There are also records for when a user completes an offer.
+
+Solution Statement
+
+We'll begin the project by using supervised learning methods, in this case Gradient Boosting, to 
+analyze attributes of customers in order to create customer classifications.
+
+Datasets and Inputs
+
+This data set contains simulated data that mimics customer behavior on the Starbucks rewards mobile app. 
+Once every few days, Starbucks sends out an offer to users of the mobile app. An offer can be merely an 
+advertisement for a drink or an actual offer such as a discount or BOGO (buy one get one free). 
+Some users might not receive any offer during certain weeks. Not all users receive the same offer, and 
+that is the challenge to solve with this data set.
+
+# Data Sets
+
+The data is contained in three files:
+
+* portfolio.json - containing offer ids and meta data about each offer (duration, type, etc.)
+* profile.json - demographic data for each customer
+* transcript.json - records for transactions, offers received, offers viewed, and offers completed
+
+Here is the schema and explanation of each variable in the files:
+
+portfolio.json
+
+* id (string) - offer id
+* offer_type (string) - type of offer ie BOGO, discount, informational
+* difficulty (int) - minimum required spend to complete an offer
+* reward (int) - reward given for completing an offer
+* duration (int) - time for offer to be open, in days
+* channels (list of strings)
+
+profile.json
+
+* age (int) - age of the customer 
+* became_member_on (int) - date when customer created an app account
+* gender (str) - gender of the customer (note some entries contain 'O' for other rather than M or F)
+* id (str) - customer id
+* income (float) - customer's income
+
+transcript.json
+
+* event (str) - record description (ie transaction, offer received, offer viewed, etc.)
+* person (str) - customer id
+* time (int) - time in hours since start of test. The data begins at time t=0
+* value - (dict of strings) - either an offer id or transaction amount depending on the record
+
+import pandas as pd
+import numpy as np
+import math
+import json
+
+# read in the json files
+portfolio = pd.read_json('data/portfolio.json', orient='records', lines=True)
+profile = pd.read_json('data/profile.json', orient='records', lines=True)
+transcript = pd.read_json('data/transcript.json', orient='records', lines=True)
+
+Benchmark Model
+
+We will be using multiclass logistic regression against which we can benchmark.
+
+Evaluation Metrics
+
+This is a multi-class classification problem so the key metric we will be using is accuracy. This data set 
+is a simplified version of the real Starbucks app because the underlying simulator only has one product 
+whereas Starbucks actually sells dozens of products.
+
+Project Design
+
+Student summarizes a theoretical workflow for approaching a solution given the problem. A discussion is 
+made as to what strategies may be employed, what analysis of the data might be required, or which algorithms 
+will be considered. The workflow and discussion provided align with the qualities of the project. Small 
+visualizations, pseudocode, or diagrams are encouraged but not required.
+
+Perform any data cleaning or data preprocessing on the json files above then upload the data to AWS S3. 
+Declare your model training hyperparameter
+
+Though, GBM is robust enough to not overfit with increasing trees, but a high number for a particular 
+learning rate can lead to overfitting. But as we reduce the learning rate and increase trees, the computation 
+becomes expensive and would take a long time to run on standard personal computers.
+
+Keeping all this in mind, we can take the following approach:
+
+Choose a relatively high learning rate. Generally the default value of 0.1 works but somewhere between 0.05 
+to 0.2 should work for different problems. Determine the optimum number of trees for this learning rate. This 
+should range around 40-70. Remember to choose a value on which your system can work fairly fast. This is because 
+it will be used for testing various scenarios and determining the tree parameters. Tune tree-specific parameters 
+for decided learning rate and number of trees. Note that we can choose different parameters to define a tree 
+and I’ll take up an example here. Lower the learning rate and increase the estimators proportionally to get more 
+robust models.
+
+Finally, for standout suggestions we will perform hyperparameter tuning to increase the performance of your model. 
+We can also deploy our model to an endpoint and then query that endpoint to get a result.
