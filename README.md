@@ -1,7 +1,5 @@
 # Starbucks Rewards: Predicting Consumer Responses
 
-Customer targeting model to optimize promotion targeting, based on simulated data from Starbucks.
-
 ## Dataset
 
 ### Overview
