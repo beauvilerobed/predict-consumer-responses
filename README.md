@@ -1,8 +1,6 @@
-**NOTE:** This file is a template that you can use to create the README for your project. The **TODO** comments below will highlight the information you should be sure to include.
+# Starbucks Rewards: Predicting Consumer Responses
 
-# Your Project Title Here
-
-**TODO:** Write a short introduction to your project.
+Customer targeting model to optimize promotion targeting, based on simulated data from Starbucks.
 
 ## Project Set Up and Installation
 **OPTIONAL:** If your project has any special installation steps, this is where you should put it. To turn this project into a professional portfolio project, you are encouraged to make your `README` detailed and self-explanatory. For instance, here you could explain how to set up your project in AWS and provide helpful screenshots of the process.
