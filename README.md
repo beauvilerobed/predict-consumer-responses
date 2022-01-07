@@ -2,22 +2,52 @@
 
 Customer targeting model to optimize promotion targeting, based on simulated data from Starbucks.
 
-## Project Set Up and Installation
-**OPTIONAL:** If your project has any special installation steps, this is where you should put it. To turn this project into a professional portfolio project, you are encouraged to make your `README` detailed and self-explanatory. For instance, here you could explain how to set up your project in AWS and provide helpful screenshots of the process.
-
 ## Dataset
 
 ### Overview
-**TODO**: Explain about the data you are using and where you got it from.
+The data is contained in three files:
+
+* portfolio.json - containing offer ids and meta data about each offer (duration, type, etc.)
+* profile.json - demographic data for each customer
+* transcript.json - records for transactions, offers received, offers viewed, and offers completed
+
+Here is the schema and explanation of each variable in the files:
+
+**portfolio.json**
+* id (string) - offer id
+* offer_type (string) - type of offer ie BOGO, discount, informational
+* difficulty (int) - minimum required spend to complete an offer
+* reward (int) - reward given for completing an offer
+* duration (int) - time for offer to be open, in days
+* channels (list of strings)
+
+**profile.json**
+* age (int) - age of the customer 
+* became_member_on (int) - date when customer created an app account
+* gender (str) - gender of the customer (note some entries contain 'O' for other rather than M or F)
+* id (str) - customer id
+* income (float) - customer's income
+
+**transcript.json**
+* event (str) - record description (ie transaction, offer received, offer viewed, etc.)
+* person (str) - customer id
+* time (int) - time in hours since start of test. The data begins at time t=0
+* value - (dict of strings) - either an offer id or transaction amount depending on the record
 
 ### Access
-**TODO**: Explain how you are accessing the data in AWS and how you uploaded it
+Upload the data to an S3 bucket through the AWS Gateway so that SageMaker has access to the data.
 
 ## Model Training
-**TODO**: What kind of model did you choose for this experiment and why? Give an overview of the types of hyperparameters that you specified and why you chose them. Also remember to evaluate the performance of your model.
+Using Gradient Boosting, a supervised learning method, we will analyze the attributes of customers to create customer classifications.
+This is a multi-class classification problem so the key metric we will use is precision. The simulating dataset only has one product, while Starbucks offers dozens of products. Therefore, this data set is a simplified version of the real Starbucks app.
 
 ## Machine Learning Pipeline
-**TODO:** Explain your project pipeline.
+- Cleaning
+- Feature engineering
+- Split
+- Training
+- Inference
+- Test
 
 ## Standout Suggestions
-**TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
+We will perform hyperparameter tuning to increase the performance of our model. We can also deploy our model to an endpoint and then query that endpoint to get a result.
