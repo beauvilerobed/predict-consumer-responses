@@ -1,79 +1,75 @@
-#TODO: Import your dependencies.
-#For instance, below are some dependencies you might need if you are using Pytorch
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torchvision
-import torchvision.models as models
-import torchvision.transforms as transforms
-
 import argparse
+import json
+import logging
+import os
+import sys
+import pickle as pkl
+
+from sklearn.metrics import precision_score
+import xgboost as xgb
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler(sys.stdout))
+
+
+def _get_train_data_loader(training_dir):
+    logger.info("Get train data loader")
+    return xgb.DMatrix(
+        training_dir.loc[:, training_dir.columns != "target"], label=training_dir["target"]
+    )
+
+
+def _get_test_data_loader(test_dir):
+    logger.info("Get test data loader")
+    return xgb.DMatrix(
+        test_dir.loc[:, test_dir.columns != "target"], label=test_dir["target"]
+    )
+
+def train(args):
+    logger.info("Hyperparameters: epoch: {}, eta: {}, objective: {}, num_class: {}".format(
+                    args.max_depth, args.eta, args.objective, args.num_class)
+    )
+    param = {"max_depth": args.max_depth, "eta": args.eta, "objective": args.objective, "num_class": args.num_class}
+    num_round = 100
+    train_loader = _get_train_data_loader(args.train_dir)
+    test_loader = _get_test_data_loader(args.test_dir)
+    bst = xgb.train(param, train_loader, num_round)
+
+    test(bst, test_loader)
+    save_model(bst, args.model_dir)
+
 
 def test(model, test_loader):
-    '''
-    TODO: Complete this function that can take a model and a 
-          testing data loader and will get the test accuray/loss of the model
-          Remember to include any debugging/profiling hooks that you might need
-    '''
-    pass
+    logger.info("Testing Model on Whole Testing Dataset")
+    preds = model.predict(test_loader)
+    score=precision_score(test_loader["target"], preds, average='weighted')
+    logger.info(f"Testing Percision: {score}")
 
-def train(model, train_loader, criterion, optimizer):
-    '''
-    TODO: Complete this function that can take a model and
-          data loaders for training and will get train the model
-          Remember to include any debugging/profiling hooks that you might need
-    '''
-    pass
-    
-def net():
-    '''
-    TODO: Complete this function that initializes your model
-          Remember to use a pretrained model
-    '''
-    pass
+def model_fn(model_dir):
+    with open(os.path.join(model_dir, "xgboost-model"), "rb") as f:
+        booster = pkl.load(f)
+    return booster
 
-def create_data_loaders(data, batch_size):
-    '''
-    This is an optional function that you may or may not need to implement
-    depending on whether you need to use data loaders or not
-    '''
-    pass
+def save_model(model, model_dir):
+    logger.info("Saving the model.")
+    model_location = model_dir + "/xgboost-model"
+    pkl.dump(model, open(model_location, "wb"))
+    logging.info("Stored trained model at {}".format(model_location))
 
-def main(args):
-    '''
-    TODO: Initialize a model by calling the net function
-    '''
-    model=net()
-    
-    '''
-    TODO: Create your loss and optimizer
-    '''
-    loss_criterion = None
-    optimizer = None
-    
-    '''
-    TODO: Call the train function to start training your model
-    Remember that you will need to set up a way to get training data from S3
-    '''
-    model=train(model, train_loader, loss_criterion, optimizer)
-    
-    '''
-    TODO: Test the model to see its accuracy
-    '''
-    test(model, test_loader, criterion)
-    
-    '''
-    TODO: Save the trained model
-    '''
-    torch.save(model, path)
 
-if __name__=='__main__':
-    parser=argparse.ArgumentParser()
-    '''
-    TODO: Specify all the hyperparameters you need to use to train your model.
-    '''
-    
-    args=parser.parse_args()
-    
-    main(args)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--objective", type=str, default="multi:softmax")
+    parser.add_argument("--max_depth", type=int, default=5)
+    parser.add_argument("--eta", type=float, default=0.1)
+    parser.add_argument( "--num_class", type=int, default=8)
+    parser.add_argument('--num_round', type=int)
+
+    parser.add_argument("--hosts", type=list, default=json.loads(os.environ["SM_HOSTS"]))
+    parser.add_argument("--current-host", type=str, default=os.environ["SM_CURRENT_HOST"])
+    parser.add_argument("--model-dir", type=str, default=os.environ["SM_MODEL_DIR"])
+    parser.add_argument("--train_dir", type=str, default=os.environ["SM_CHANNEL_TRAIN"])
+    parser.add_argument("--test_dir", type=str, default=os.environ["SM_CHANNEL_TEST"])
+
+    train(parser.parse_args())
