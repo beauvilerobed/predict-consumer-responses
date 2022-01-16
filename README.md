@@ -45,7 +45,16 @@ This is a multi-class classification problem so the key metric we will use is pr
 - Split
 - Training
 - Inference
-- Test
+
+To finish this project, we perform the following tasks:
+
+1. Upload Training Data: First you will have to upload the training data to an S3 bucket.
+2. Model Training Script: Once we have done that, we will have to write a script to train a model on that dataset.
+3. Train in SageMaker: Finally, we will have to use SageMaker to run that training script and train your model
+
 
 ## Standout Suggestions
-We will perform hyperparameter tuning to increase the performance of our model. We can also deploy our model to an endpoint and then query that endpoint to get a result.
+
+* **Model Deployment:** Once we have trained your model, we can deploy our model to a SageMaker endpoint and then query it with an image to get a prediction.
+* **Hyperparameter Tuning**: To improve the performance of our model, we can use SageMaker’s Hyperparameter Tuning to search through a hyperparameter space and get the value of the best hyperparameters.
+

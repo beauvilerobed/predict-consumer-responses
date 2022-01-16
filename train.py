@@ -5,7 +5,6 @@ import os
 import sys
 import pickle as pkl
 
-import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
 import xgboost as xgb
