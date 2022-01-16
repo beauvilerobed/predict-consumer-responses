@@ -50,9 +50,8 @@ def train(args):
 def test(model, test_data, df_test):
     logger.info("Testing Model on Testing Dataset")
     preds = model.predict(df_test)
-    score=f1_score(test_data["target"], preds, average=None)
     score1=f1_score(test_data["target"], preds, average='weighted')
-    logger.info(f"f1-score:{score}")
+    logger.info(f"f1-score:{score1}")
     logger.info(f"[2]#011validation-f1:{score1}")
     
 
