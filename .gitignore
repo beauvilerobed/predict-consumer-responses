@@ -152,4 +152,4 @@ About
 
 # extra
 xgboost-model
-train2.py
+train_loc.py
