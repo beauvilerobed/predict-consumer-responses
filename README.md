@@ -37,7 +37,7 @@ Upload the data to an S3 bucket through the AWS Gateway so that SageMaker has ac
 
 ## Model Training
 Using Gradient Boosting, a supervised learning method, we will analyze the attributes of customers to create customer classifications.
-This is a multi-class classification problem so the key metric we will use is precision. The simulating dataset only has one product, while Starbucks offers dozens of products. Therefore, this data set is a simplified version of the real Starbucks app.
+This is a multi-class classification problem so the key metric we will use is the f1-score. The simulating dataset only has one product, while Starbucks offers dozens of products. Therefore, this data set is a simplified version of the real Starbucks app.
 
 ## Machine Learning Pipeline
 - Cleaning
